@@ -2,8 +2,8 @@ import { createUser } from "@/lib/appwrite";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
-import CustomButton from "../componets/CustomButton";
-import CustomInput from "../componets/CustomInput";
+import CustomButton from "../../componets/CustomButton";
+import CustomInput from "../../componets/CustomInput";
 
 const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

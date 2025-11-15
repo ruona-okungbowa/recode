@@ -1,3 +1,4 @@
+import { CreateUserParams, SignInParams } from "@/type";
 import {
   Account,
   Avatars,
@@ -24,17 +25,6 @@ client
 export const avatar = new Avatars(client);
 export const account = new Account(client);
 export const databases = new Databases(client);
-
-interface CreateUserParams {
-  email?: string;
-  password?: string;
-  name?: string;
-}
-
-interface SignInParams {
-  email?: string;
-  password?: string;
-}
 
 export const createUser = async ({
   email,
@@ -82,7 +72,7 @@ export const getCurrentUser = async () => {
     const currentUser = await databases.listDocuments(
       config.databaseId,
       config.userTableId,
-      [Query.equal("accountId", currentAccount.$id)]
+      [Query.equal("userId", currentAccount.$id)]
     );
     if (!currentUser) throw Error;
     return currentUser.documents[0];
