@@ -16,7 +16,7 @@ export interface User extends Models.Document {
   completedChallenges: string[];
 }
 
-export interface Domain {
+export interface Domain extends Models.Document {
   id: string;
   name: string;
   description: string;
@@ -27,7 +27,7 @@ export interface Domain {
   isActive: boolean;
 }
 
-export interface Topic {
+export interface Topic extends Models.Document {
   id: string;
   domainId: string;
   name: string;
@@ -40,7 +40,7 @@ export interface Topic {
   xpReward: number;
 }
 
-export interface Challenge {
+export interface Challenge extends Models.Document {
   id: string;
   topicId: string;
   title: string;
@@ -54,7 +54,7 @@ export interface Challenge {
   hints: string[];
 }
 
-export interface UserProgress {
+export interface UserProgress extends Models.Document {
   userId: string;
   challengeId: string;
   topicId: string;
