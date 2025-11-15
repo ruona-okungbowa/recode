@@ -10,12 +10,18 @@ export const saveProgress = async (
   score: number = 100
 ) => {
   try {
+    console.log("Saving progress for user:", userId);
+    console.log("Database ID:", config.databaseId);
+    console.log("Collection ID:", config.userProgressId);
+
     // Check if progress already exists
+    console.log("Checking for existing progress...");
     const existing = await databases.listDocuments(
       config.databaseId,
       config.userProgressId,
       [Query.equal("userId", userId), Query.equal("challengeId", challengeId)]
     );
+    console.log("Existing documents found:", existing.documents.length);
 
     if (existing.documents.length > 0) {
       // Update existing progress
@@ -32,11 +38,9 @@ export const saveProgress = async (
       );
     } else {
       // Create new progress record
-      await databases.createDocument(
-        config.databaseId,
-        config.userProgressId,
-        ID.unique(),
-        {
+      console.log("Creating new progress record...");
+      try {
+        const documentData = {
           userId,
           challengeId,
           topicId,
@@ -44,8 +48,21 @@ export const saveProgress = async (
           score,
           attempts: 1,
           completedAt: new Date().toISOString(),
-        }
-      );
+        };
+        console.log("Document data:", documentData);
+
+        const result = await databases.createDocument(
+          config.databaseId,
+          config.userProgressId,
+          ID.unique(),
+          documentData,
+          []
+        );
+        console.log("Progress record created successfully:", result.$id);
+      } catch (createError) {
+        console.error("Create document error details:", createError);
+        throw createError;
+      }
     }
 
     // If completed, add to completedChallenges array

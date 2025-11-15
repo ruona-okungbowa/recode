@@ -22,10 +22,11 @@ export const getCurrentUser = async () => {
 
 export const awardXP = async (userId: string, xpAmount: number) => {
   try {
+    const currentAccount = await account.get();
     const currentUser = await databases.listDocuments(
       config.databaseId,
       config.userTableId,
-      [Query.equal("userId", userId)]
+      [Query.equal("userId", currentAccount.$id)]
     );
 
     if (!currentUser.documents[0]) throw new Error("User not found");
@@ -70,10 +71,11 @@ export const awardXP = async (userId: string, xpAmount: number) => {
 
 export const updateStreak = async (userId: string) => {
   try {
+    const currentAccount = await account.get();
     const currentUser = await databases.listDocuments(
       config.databaseId,
       config.userTableId,
-      [Query.equal("userId", userId)]
+      [Query.equal("userId", currentAccount.$id)]
     );
 
     if (!currentUser.documents[0]) throw new Error("User not found");

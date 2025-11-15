@@ -33,7 +33,7 @@ const TopicDetailScreen = () => {
   }, [topicId]);
 
   const handleChallengePress = (challengeId: string) => {
-    router.push(`/topics/${topicId}/challenge/${challengeId}` as any);
+    router.push(`/challenge/${challengeId}` as any);
   };
 
   if (isLoading) {

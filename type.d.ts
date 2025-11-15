@@ -94,6 +94,25 @@ export interface TheorySection {
   analogies: string[];
 }
 
+interface ScenarioChallengeProps {
+  challenge: Challenge;
+  onSubmit: (isCorrect: boolean, selectedAnswer: string) => void;
+  onRequestHint: () => void;
+  hints: string[];
+  isLoading?: boolean;
+}
+
+interface ScenarioContent {
+  scenario: string;
+  question: string;
+  options: Array<{
+    id: string;
+    text: string;
+    isCorrect: boolean;
+    explanation: string;
+  }>;
+}
+
 interface CreateUserParams {
   email: string;
   password: string;
