@@ -36,14 +36,16 @@ export const createUser = async ({
   name,
 }: CreateUserParams) => {
   try {
-    const newUser = await account.create(ID.unique(), email!, password!);
+    const newUser = await account.create(ID.unique(), email!, password!, name);
 
-    if (!newUser) throw Error;
+    if (!newUser) throw new Error("User not created");
 
-    await signIn({ email, password });
+    await account.createEmailPasswordSession(email, password);
+    // fetch acccount info
+    const currentAccount = await account.get();
+
     const avatarUrl = avatar.getInitials(name);
-
-    return await databases.createDocument(
+    await databases.createDocument(
       config.databaseId,
       config.userTableId,
       ID.unique(),
@@ -52,8 +54,15 @@ export const createUser = async ({
         email,
         name,
         avatar: avatarUrl,
+        xp: 0,
+        level: 1,
+        rank: "E-Rank",
+        unlockedDomains: ["data-structures"],
+        completedChallenges: [],
       }
     );
+
+    return currentAccount;
   } catch (error) {
     throw new Error(error as string);
   }
@@ -62,6 +71,10 @@ export const createUser = async ({
 export const signIn = async ({ email, password }: SignInParams) => {
   try {
     const session = await account.createEmailPasswordSession(email, password);
+    console.log("Session created:", session);
+
+    const currentAccount = await account.get();
+    return currentAccount;
   } catch (error) {
     throw new Error(error as string);
   }

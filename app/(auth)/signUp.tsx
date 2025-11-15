@@ -1,4 +1,4 @@
-import { createUser } from "@/lib/appwrite";
+import useAuthStore from "@/store/auth.store";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
@@ -8,6 +8,7 @@ import CustomInput from "../../componets/CustomInput";
 const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setform] = useState({ name: "", email: "", password: "" });
+  const { signUpUser } = useAuthStore();
 
   const handleSubmit = async () => {
     const { email, name, password } = form;
@@ -16,7 +17,7 @@ const SignUp = () => {
     }
     setIsSubmitting(true);
     try {
-      await createUser({ email, password, name });
+      await signUpUser(name, email, password);
       router.replace("/");
     } catch (error: any) {
       Alert.alert("Error", error.message);
