@@ -1,4 +1,4 @@
-import useProgressStore from "@/store/progress.store";
+import useProgressStore from "@/store/content.store";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {

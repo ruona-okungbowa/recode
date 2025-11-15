@@ -7,6 +7,8 @@ export interface User extends Models.Document {
   xp: number;
   level: number;
   rank: string;
+  streak: number;
+  lastActivityDate: string;
   dataStructuresScore: number;
   algorithmsScore: number;
   problemSolvingScore: number;
@@ -14,10 +16,11 @@ export interface User extends Models.Document {
   behavioralScore: number;
   unlockedDomains: string[];
   completedChallenges: string[];
+  completedQuests: string[];
 }
 
 export interface Domain extends Models.Document {
-  id: string;
+  $id: string;
   name: string;
   description: string;
   icon: string;
@@ -28,7 +31,7 @@ export interface Domain extends Models.Document {
 }
 
 export interface Topic extends Models.Document {
-  id: string;
+  $id: string;
   domainId: string;
   name: string;
   description: string;
@@ -41,7 +44,7 @@ export interface Topic extends Models.Document {
 }
 
 export interface Challenge extends Models.Document {
-  id: string;
+  $id: string;
   topicId: string;
   title: string;
   description: string;
@@ -63,6 +66,32 @@ export interface UserProgress extends Models.Document {
   attempts: number;
   timeSpent: number;
   completedAt: string;
+}
+
+export interface Quest extends Models.Document {
+  $id: string;
+  domainId: string;
+  topicId: string;
+  title: string;
+  narrative: string;
+  objectives: string[];
+  totalXP: number;
+  theoryContent: string;
+  challengeIds: string[];
+  unlockRequirements: string[];
+  order: number;
+}
+
+export interface TheorySection {
+  title: string;
+  content: string;
+  codeExamples: Array<{
+    language: string;
+    code: string;
+    explanation: string;
+  }>;
+  diagrams: string[];
+  analogies: string[];
 }
 
 interface CreateUserParams {

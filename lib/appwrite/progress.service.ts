@@ -43,7 +43,6 @@ export const saveProgress = async (
           completed,
           score,
           attempts: 1,
-          timeSpent: 0,
           completedAt: new Date().toISOString(),
         }
       );

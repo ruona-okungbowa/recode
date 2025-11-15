@@ -1,120 +1,87 @@
-import { getAllDomains } from "@/lib/appwrite";
-import { Challenge, Domain, Topic, UserProgress } from "@/type";
+import { saveProgress, updateStreak } from "@/lib/appwrite";
 import { create } from "zustand";
 
-type ProgressState = {
-  domains: Domain[];
-  currentDomain: Domain | null;
-  currentTopic: Topic | null;
-  userProgress: UserProgress[];
+interface ProgressState {
+  completedChallenges: string[];
+  streak: number;
+  lastActivityDate: string;
   isLoading: boolean;
-  error: string | null;
-  topics: Topic[];
-  challenges: Challenge[];
 
-  setDomains: (domains: Domain[]) => void;
-  setCurrentDomain: (domain: Domain | null) => void;
-  setCurrentTopic: (topic: Topic | null) => void;
-  addUserProgress: (progress: UserProgress) => void;
-  setError: (error: string | null) => void;
-  setTopics: (topics: Topic[]) => void;
-  setChallenges: (challenges: Challenge[]) => void;
+  trackAttempt: (
+    userId: string,
+    challengeId: string,
+    topicId: string,
+    success: boolean,
+    score?: number
+  ) => Promise<void>;
+  updateUserStreak: (userId: string) => Promise<void>;
+  loadUserProgress: (userId: string) => Promise<void>;
+  resetProgress: () => void;
+}
 
-  fetchDomains: () => Promise<void>;
-  fetchTopicsByDomain: (domainId: string) => Promise<void>;
-  fetchTopicById: (topicId: string) => Promise<void>;
-  fetchChallengesByTopic: (topicId: string) => Promise<void>;
-};
-
-const useProgressStore = create<ProgressState>((set) => ({
-  domains: [],
-  currentDomain: null,
-  currentTopic: null,
-  userProgress: [],
+const useProgressStore = create<ProgressState>((set, get) => ({
+  // Initial state
+  completedChallenges: [],
+  streak: 0,
+  lastActivityDate: "",
   isLoading: false,
-  error: null,
-  topics: [],
-  challenges: [],
 
-  setDomains: (domains) => set({ domains }),
-  setCurrentDomain: (domain) => set({ currentDomain: domain }),
-  setCurrentTopic: (topic) => set({ currentTopic: topic }),
-  setError: (error) => set({ error }),
-  addUserProgress: (progress) =>
-    set((state) => ({
-      userProgress: [...state.userProgress, progress],
-    })),
-  setTopics: (topics) => set({ topics }),
-  setChallenges: (challenges) => set({ challenges }),
-
-  fetchDomains: async () => {
-    set({ isLoading: true, error: null });
-
+  // Track a challenge attempt
+  trackAttempt: async (
+    userId: string,
+    challengeId: string,
+    topicId: string,
+    success: boolean,
+    score: number = 100
+  ) => {
+    set({ isLoading: true });
     try {
-      const domainData = await getAllDomains();
-      set({
-        domains: domainData as Domain[],
-        isLoading: false,
-        error: null,
-      });
-    } catch (error: any) {
-      console.error("Error in fetchDomains", error);
-      set({
-        error: error.message || "Failed to fetch domains",
-        isLoading: false,
-        domains: [],
-      });
+      await saveProgress(userId, challengeId, topicId, success, score);
+
+      // If successful, add to completed challenges
+      if (success) {
+        set((state) => ({
+          completedChallenges: [...state.completedChallenges, challengeId],
+          isLoading: false,
+        }));
+      } else {
+        set({ isLoading: false });
+      }
+    } catch (error) {
+      console.error("Error tracking attempt:", error);
+      set({ isLoading: false });
     }
   },
 
-  fetchTopicsByDomain: async (domainId: string) => {
-    set({ isLoading: true, error: null });
+  updateUserStreak: async (userId: string) => {
     try {
-      const { getTopicsByDomain } = await import("@/lib/appwrite");
-      const topicData = await getTopicsByDomain(domainId);
-      set({ topics: topicData as Topic[], isLoading: false, error: null });
-    } catch (error: any) {
+      const result = await updateStreak(userId);
       set({
-        error: error.message || "Failed to load topics",
-        isLoading: false,
-        topics: [],
+        streak: result.streak,
+        lastActivityDate: new Date().toISOString(),
       });
+    } catch (error) {
+      console.error("Error updating streak:", error);
     }
   },
 
-  fetchTopicById: async (topicId: string) => {
-    set({ isLoading: true, error: null });
+  loadUserProgress: async (userId: string) => {
+    set({ isLoading: true });
     try {
-      const { getTopicById } = await import("@/lib/appwrite");
-      const topic = await getTopicById(topicId);
-      set({ currentTopic: topic as Topic, isLoading: false, error: null });
-    } catch (error: any) {
-      console.error("Error fetching topic:", error);
-      set({ 
-        error: `Topic not found: ${error.message || "Failed to load topic"}`, 
-        isLoading: false,
-        currentTopic: null 
-      });
+      set({ isLoading: false });
+    } catch (error) {
+      console.error("Error loading progress:", error);
+      set({ isLoading: false });
     }
   },
 
-  fetchChallengesByTopic: async (topicId: string) => {
-    set({ isLoading: true, error: null });
-    try {
-      const { getChallengesByTopic } = await import("@/lib/appwrite");
-      const challengeData = await getChallengesByTopic(topicId);
-      set({
-        challenges: challengeData as Challenge[],
-        isLoading: false,
-        error: null,
-      });
-    } catch (error: any) {
-      set({
-        error: error.message || "Failed to load challenges",
-        isLoading: false,
-        challenges: [],
-      });
-    }
+  resetProgress: () => {
+    set({
+      completedChallenges: [],
+      streak: 0,
+      lastActivityDate: "",
+      isLoading: false,
+    });
   },
 }));
 

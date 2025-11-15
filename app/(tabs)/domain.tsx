@@ -1,6 +1,6 @@
 import { isDomainUnlocked } from "@/lib/progression";
 import useAuthStore from "@/store/auth.store";
-import useProgressStore from "@/store/progress.store";
+import useProgressStore from "@/store/content.store";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
