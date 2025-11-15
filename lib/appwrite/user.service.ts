@@ -1,4 +1,10 @@
 import { Query } from "react-native-appwrite";
+import {
+  calculateLevel,
+  calculateRank,
+  checkLevelUp,
+  checkRankUp,
+} from "../progression";
 import { account, config, databases } from "./config";
 
 export const getCurrentUser = async () => {
@@ -22,29 +28,25 @@ export const getCurrentUser = async () => {
 
 export const awardXP = async (userId: string, xpAmount: number) => {
   try {
-    const currentAccount = await account.get();
     const currentUser = await databases.listDocuments(
       config.databaseId,
       config.userTableId,
-      [Query.equal("userId", currentAccount.$id)]
+      [Query.equal("userId", userId)]
     );
 
     if (!currentUser.documents[0]) throw new Error("User not found");
 
     const user = currentUser.documents[0];
-    const newXP = (user.xp || 0) + xpAmount;
+    const oldXP = user.xp || 0;
+    const newXP = oldXP + xpAmount;
 
-    // Calculate new level (100 XP per level)
-    const newLevel = Math.floor(newXP / 100) + 1;
+    // Calculate new level and rank using progression system
+    const newLevel = calculateLevel(newXP);
+    const newRank = calculateRank(newLevel);
 
-    // Calculate new rank
-    let newRank = "E-Rank";
-    if (newLevel >= 61) newRank = "Monarch";
-    else if (newLevel >= 51) newRank = "S-Rank";
-    else if (newLevel >= 41) newRank = "A-Rank";
-    else if (newLevel >= 31) newRank = "B-Rank";
-    else if (newLevel >= 21) newRank = "C-Rank";
-    else if (newLevel >= 11) newRank = "D-Rank";
+    // Check for level up and rank up
+    const { leveledUp, oldLevel } = checkLevelUp(oldXP, newXP);
+    const { rankedUp, oldRank } = checkRankUp(oldLevel, newLevel);
 
     await databases.updateDocument(
       config.databaseId,
@@ -61,7 +63,10 @@ export const awardXP = async (userId: string, xpAmount: number) => {
       newXP,
       newLevel,
       newRank,
-      leveledUp: newLevel > (user.level || 1),
+      leveledUp,
+      rankedUp,
+      oldLevel,
+      oldRank,
     };
   } catch (error) {
     console.error("Error awarding XP:", error);

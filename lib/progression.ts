@@ -13,6 +13,19 @@ export const RANKS = {
   Monarch: { minLevel: 71, maxLevel: 999 },
 };
 
+const XP_REWARDS = {
+  easy: 50,
+  medium: 100,
+  hard: 150,
+};
+
+// Bonus multipliers
+const MULTIPLIERS = {
+  firstAttempt: 1.5,
+  perfectScore: 1.25,
+  noHints: 1.2,
+};
+
 // Calculate level from XP
 export const calculateLevel = (currentXP: number): number => {
   return Math.floor(currentXP / XP_PER_LEVEL) + 1;
@@ -42,12 +55,96 @@ export const getXPProgress = (currentXP: number): number => {
   return (xpInCurrentLevel / XP_PER_LEVEL) * 100;
 };
 
+export const calculateXPForNextLevel = (currentXP: number): number => {
+  const currentLevel = calculateLevel(currentXP);
+  const nextLevelXP = currentLevel * XP_PER_LEVEL;
+  return nextLevelXP - currentXP;
+};
+
+/**
+ * Calculate XP progress percentage for current level
+ */
+export const calculateLevelProgress = (currentXP: number): number => {
+  const currentLevel = calculateLevel(currentXP);
+  const levelStartXP = (currentLevel - 1) * XP_PER_LEVEL;
+  const xpInCurrentLevel = currentXP - levelStartXP;
+  return (xpInCurrentLevel / XP_PER_LEVEL) * 100;
+};
+
+/**
+ * Check if user leveled up after gaining XP
+ */
+export const checkLevelUp = (
+  oldXP: number,
+  newXP: number
+): { leveledUp: boolean; oldLevel: number; newLevel: number } => {
+  const oldLevel = calculateLevel(oldXP);
+  const newLevel = calculateLevel(newXP);
+
+  return {
+    leveledUp: newLevel > oldLevel,
+    oldLevel,
+    newLevel,
+  };
+};
+
+export const checkRankUp = (
+  oldLevel: number,
+  newLevel: number
+): { rankedUp: boolean; oldRank: string; newRank: string } => {
+  const oldRank = calculateRank(oldLevel);
+  const newRank = calculateRank(newLevel);
+
+  return {
+    rankedUp: oldRank !== newRank,
+    oldRank,
+    newRank,
+  };
+};
+
+export const getNextRankInfo = (
+  currentLevel: number
+): { nextRank: string; levelRequired: number; levelsToGo: number } => {
+  const currentRank = calculateRank(currentLevel);
+
+  const rankThresholds: Record<string, number> = {
+    "F-Rank": 1,
+    "E-Rank": 11,
+    "D-Rank": 21,
+    "C-Rank": 31,
+    "B-Rank": 41,
+    "A-Rank": 51,
+    "S-Rank": 61,
+    Monarch: 71,
+  };
+
+  const ranks = Object.keys(rankThresholds);
+  const currentRankIndex = ranks.indexOf(currentRank);
+
+  if (currentRankIndex === ranks.length - 1) {
+    // Already at max rank
+    return {
+      nextRank: "Monarch",
+      levelRequired: 71,
+      levelsToGo: 0,
+    };
+  }
+  const nextRank = ranks[currentRankIndex + 1];
+  const levelRequired = rankThresholds[nextRank];
+
+  return {
+    nextRank,
+    levelRequired,
+    levelsToGo: levelRequired - currentLevel,
+  };
+};
+
 // Check if domain should be unlocked
 export const isDomainUnlocked = (
   domainRank: string,
   userLevel: number
 ): boolean => {
-  const rankLevels = {
+  const rankLevels: Record<string, number> = {
     "F-Rank": 1,
     "E-Rank": 11,
     "D-Rank": 21,
@@ -56,4 +153,19 @@ export const isDomainUnlocked = (
     "A-Rank": 51,
   };
   return userLevel >= (rankLevels[domainRank] || 999);
+};
+
+export const getRankColor = (rank: string): string => {
+  const colors: Record<string, string> = {
+    "F-Rank": "#9CA3AF", // gray
+    "E-Rank": "#10B981", // green
+    "D-Rank": "#3B82F6", // blue
+    "C-Rank": "#8B5CF6", // purple
+    "B-Rank": "#F59E0B", // amber
+    "A-Rank": "#EF4444", // red
+    "S-Rank": "#F59E0B", // gold
+    Monarch: "#FFD700", // gold
+  };
+
+  return colors[rank] || colors["F-Rank"];
 };
