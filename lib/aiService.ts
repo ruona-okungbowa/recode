@@ -23,47 +23,52 @@ async function withRetry<T>(
 }
 
 // Generate a hint
-export async function generateHint(
-  challengeId: string,
-  challengeTitle: string,
-  challengeDescription: string,
-  userAttempts: number,
-  challengeType: string
-): Promise<string> {
-  const cacheKey = `hint-${challengeId}-${userAttempts}`;
+export const generateHint = async (challengeContext: {
+  title: string;
+  description: string;
+  type: string;
+  difficulty: string;
+  content: any;
+  attempts: number;
+  previousHints: string[];
+}): Promise<string> => {
+  const prompt = `You are a helpful coding tutor. A student is working on this challenge:
 
-  if (responseCache.has(cacheKey)) {
-    return responseCache.get(cacheKey);
-  }
+Title: ${challengeContext.title}
+Type: ${challengeContext.type}
+Difficulty: ${challengeContext.difficulty}
+Description: ${challengeContext.description}
+
+The student has made ${challengeContext.attempts} attempt(s) so far.
+${
+  challengeContext.previousHints.length > 0
+    ? `Previous hints given: ${challengeContext.previousHints.join(", ")}`
+    : "This is their first hint request."
+}
+
+Provide a helpful, progressive hint that:
+1. Doesn't give away the answer directly
+2. Guides them toward the solution
+3. Is appropriate for their attempt number (more specific hints after more attempts)
+4. Is concise (1-2 sentences max)
+5. Encourages learning and understanding
+
+Generate only the hint text, nothing else.`;
 
   try {
-    const prompt = `You are a helpful coding tutor. A student is working on this challenge:
-
-Title: ${challengeTitle}
-Description: ${challengeDescription}
-Type: ${challengeType}
-Attempts so far: ${userAttempts}
-
-Provide a helpful hint that guides them toward the solution WITHOUT giving away the answer directly. 
-The hint should be encouraging and educational. Keep it under 100 words.`;
-
-    const response = await withRetry(() =>
-      ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-      })
-    );
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
     const hint =
-      response.text || "Try breaking down the problem into smaller steps.";
+      result.text || "Try breaking down the problem into smaller steps.";
 
-    responseCache.set(cacheKey, hint);
     return hint;
   } catch (error) {
     console.error("Error generating hint:", error);
-    return "Think about the problem step by step. What data structure would be most efficient here?";
+    throw error;
   }
-}
-
+};
 // Evaluate solution
 export async function evaluateSolution(
   challengeTitle: string,

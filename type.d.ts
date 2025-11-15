@@ -113,6 +113,35 @@ interface ScenarioContent {
   }>;
 }
 
+interface PatternChallengeProps {
+  challenge: PatternChallenge;
+  onSubmit: (isCorrect: boolean, selectedPattern: string) => void;
+  onRequestHint: () => void;
+  hints: string[];
+  isLoading?: boolean;
+}
+
+interface PatternContent {
+  problemStatement: string;
+  codeSnippets: Array<{
+    language: string;
+    code: string;
+  }>;
+  patterns: Array<{
+    id: string;
+    name: string;
+    description: string;
+  }>;
+  correctPattern: string;
+  explanation: string;
+  useCases: string[];
+}
+
+interface PatternChallenge extends Challenge {
+  type: "pattern-recognition";
+  content: PatternContent;
+}
+
 interface CreateUserParams {
   email: string;
   password: string;

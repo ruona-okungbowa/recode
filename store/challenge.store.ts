@@ -1,4 +1,3 @@
-import { generateHint } from "@/lib/aiService";
 import { getChallengeById } from "@/lib/appwrite";
 import { Challenge } from "@/type";
 import { create } from "zustand";
@@ -84,33 +83,22 @@ const useChallengeStore = create<ChallengeState>((set, get) => ({
     return isCorrect;
   },
 
-  requestHint: async () => {
-    const { currentChallenge, hints, attempts } = get();
+  requestHint: () => {
+    const { currentChallenge, hints } = get();
     if (!currentChallenge) return;
 
-    set({ isLoading: true });
-    try {
-      // Try AI-generated hint first
-      const aiHint = await generateHint(
-        currentChallenge.$id,
-        currentChallenge.title,
-        currentChallenge.description,
-        attempts,
-        currentChallenge.type
-      );
+    const availableHints = (currentChallenge as any).hints || [];
 
-      set((state) => ({
-        hints: [...state.hints, aiHint],
-        isLoading: false,
-      }));
-    } catch (error) {
-      // Fallback to static hints if AI fails
-      const staticHints = (currentChallenge as any).hints || [];
-      const nextHint = staticHints[hints.length] || "No more hints available.";
+    const nextHintIndex = hints.length;
 
+    if (nextHintIndex < availableHints.length) {
+      const nextHint = availableHints[nextHintIndex];
       set((state) => ({
         hints: [...state.hints, nextHint],
-        isLoading: false,
+      }));
+    } else {
+      set((state) => ({
+        hints: [...state.hints, "No more hints available. Try your best!"],
       }));
     }
   },
