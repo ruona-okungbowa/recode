@@ -14,6 +14,10 @@ export const config = {
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
   databaseId: "6917909200208121b4e0",
   userTableId: "user",
+  domainsTableId: "domains",
+  challengesTableId: "challenges",
+  topicsTableId: "topics",
+  userProgressId: "userprogress",
 };
 
 export const client = new Client();
