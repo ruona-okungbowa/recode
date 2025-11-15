@@ -86,7 +86,7 @@ export const updateStreak = async (userId: string) => {
     if (!currentUser.documents[0]) throw new Error("User not found");
 
     const user = currentUser.documents[0];
-    const lastActivity = user.lastActivityDate;
+    const lastActivity = new Date(user.lastActivityDate);
     const today = new Date();
 
     // Reset time to midnight for comparison
@@ -98,16 +98,16 @@ export const updateStreak = async (userId: string) => {
     );
 
     let newStreak = user.streak || 0;
+    let streakMaintained = false;
 
     if (daysDiff === 0) {
-      // Same day, no change
-      return { streak: newStreak, streakMaintained: true };
+      streakMaintained = true;
     } else if (daysDiff === 1) {
-      // Yesterday, increment streak
       newStreak += 1;
+      streakMaintained = true;
     } else {
-      // Missed days, reset streak
       newStreak = 1;
+      streakMaintained = false;
     }
 
     await databases.updateDocument(
@@ -120,7 +120,7 @@ export const updateStreak = async (userId: string) => {
       }
     );
 
-    return { streak: newStreak, streakMaintained: daysDiff <= 1 };
+    return { streak: newStreak, streakMaintained };
   } catch (error) {
     console.error("Error updating streak:", error);
     throw new Error(error as string);

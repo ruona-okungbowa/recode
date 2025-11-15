@@ -1,7 +1,8 @@
+import { getQuestsByTopic } from "@/lib/appwrite";
 import useAuthStore from "@/store/auth.store";
 import useProgressStore from "@/store/content.store";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -16,15 +17,46 @@ const TopicsScreen = () => {
   const { user } = useAuthStore();
   const { topics, isLoading, error, fetchTopicsByDomain } = useProgressStore();
   const router = useRouter();
+  const [topicQuests, setTopicQuests] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (domainId) {
       fetchTopicsByDomain(domainId);
     }
-  }, [domainId]);
+  }, [domainId, fetchTopicsByDomain]);
+
+  // Fetch quests for each topic
+  useEffect(() => {
+    const fetchQuestsForTopics = async () => {
+      const questsMap: Record<string, any> = {};
+      for (const topic of topics) {
+        try {
+          const quests = await getQuestsByTopic(topic.$id);
+          if (quests.length > 0) {
+            // Use the first quest for each topic
+            questsMap[topic.$id] = quests[0];
+          }
+        } catch (error) {
+          console.error(`Error fetching quests for topic ${topic.$id}:`, error);
+        }
+      }
+      setTopicQuests(questsMap);
+    };
+
+    if (topics.length > 0) {
+      fetchQuestsForTopics();
+    }
+  }, [topics]);
 
   const handleTopicPress = (topicId: string) => {
-    router.push(`/topics/${topicId}` as any);
+    // Navigate to the quest for this topic
+    const quest = topicQuests[topicId];
+    if (quest) {
+      router.push(`/quest/${quest.$id}` as any);
+    } else {
+      // Fallback to old behavior if no quest exists
+      router.push(`/topics/${topicId}` as any);
+    }
   };
 
   const isTopicUnlocked = (topic: any) => {
@@ -69,7 +101,7 @@ const TopicsScreen = () => {
         <View className="mb-6">
           <Text className="text-3xl font-bold text-gray-900">Topics</Text>
           <Text className="text-sm text-gray-600 mt-1">
-            Complete each topic to unlock the next
+            Choose a topic to start its quest
           </Text>
         </View>
 
@@ -98,12 +130,22 @@ const TopicsScreen = () => {
                     <Text className="text-lg font-bold text-gray-900 mb-1">
                       {item.name}
                     </Text>
-                    <Text className="text-sm text-gray-600">
+                    <Text className="text-sm text-gray-600 mb-2">
                       {item.description}
                     </Text>
-                    {unlocked && (
-                      <Text className="text-xs text-green-600 font-medium mt-2">
-                        +{item.xpReward} XP
+                    {unlocked && topicQuests[item.$id] && (
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-xs text-purple-600 font-medium">
+                          🗺️ Quest Available
+                        </Text>
+                        <Text className="text-xs text-green-600 font-medium">
+                          +{topicQuests[item.$id].totalXP} XP
+                        </Text>
+                      </View>
+                    )}
+                    {unlocked && !topicQuests[item.$id] && (
+                      <Text className="text-xs text-gray-500 font-medium mt-2">
+                        Quest coming soon...
                       </Text>
                     )}
                   </View>

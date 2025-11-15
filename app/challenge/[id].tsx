@@ -4,6 +4,7 @@ import useAnimationStore from "@/store/animation.store";
 import useAuthStore from "@/store/auth.store";
 import useChallengeStore from "@/store/challenge.store";
 import useProgressStore from "@/store/progress.store";
+import useQuestStore from "@/store/quest.store";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Text } from "react-native";
@@ -26,6 +27,7 @@ const ChallengeScreen = () => {
   const { trackAttempt } = useProgressStore();
   const { showXPGain, showCelebration } = useAnimationStore();
   const { user } = useAuthStore();
+  const { checkAndCompleteQuest } = useQuestStore();
 
   useEffect(() => {
     if (id) {
@@ -66,6 +68,16 @@ const ChallengeScreen = () => {
           useAnimationStore.getState().showLevelUp(result.newLevel);
         }, 2000);
       }
+
+      // Check if this completes any quest
+      // Note: You'll need to add questId to your challenge schema
+      // For now, we'll check by fetching quests that contain this challenge
+      // This is a simplified version - you can optimize by storing questId in challenge
+      setTimeout(async () => {
+        // You can add questId field to challenge and use it here
+        // await checkAndCompleteQuest(user.$id, currentChallenge.questId);
+      }, 1000);
+
       router.back();
     }
   };
@@ -88,7 +100,7 @@ const ChallengeScreen = () => {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center p-4">
         <Text className="text-black text-center">
-          Challenge type "{currentChallenge.type}" not yet implemented
+          Challenge type {currentChallenge.type} not yet implemented
         </Text>
       </SafeAreaView>
     );

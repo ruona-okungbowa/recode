@@ -58,7 +58,6 @@ const useProgressStore = create<ProgressState>((set, get) => ({
       const result = await updateStreak(userId);
       set({
         streak: result.streak,
-        lastActivityDate: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Error updating streak:", error);
