@@ -1,4 +1,4 @@
-import { isDomainUnlocked } from "@/lib/progression";
+import { calculateRank, isDomainUnlocked } from "@/lib/progression";
 import useAuthStore from "@/store/auth.store";
 import useProgressStore from "@/store/content.store";
 import { useRouter } from "expo-router";
@@ -16,13 +16,13 @@ const Domains = () => {
   const { user } = useAuthStore();
   const { domains, isLoading, error, fetchDomains } = useProgressStore();
   const router = useRouter();
+  const currentRank = calculateRank(user?.level || 1);
 
   useEffect(() => {
     fetchDomains();
   }, []);
 
   const handleDomainPress = (domainId: string) => {
-    // Navigate to topics list screen for this domain
     router.push(`/${domainId}/topics` as any);
   };
 
@@ -58,9 +58,9 @@ const Domains = () => {
     <SafeAreaView className="flex flex-1 bg-white">
       <View className="flex-1 p-5">
         <View className="mb-6">
-          <Text className="text-3xl font-bold text-gray-900">Domains</Text>
+          <Text className="text-3xl font-bold text-gray-900">Skill Paths</Text>
           <Text className="text-sm text-gray-600 mt-1">
-            Your level: {user?.level || 1} • Rank: {user?.rank || "E-Rank"}
+            Your level: {user?.level || 1} • Rank: {currentRank || "F-Rank"}
           </Text>
         </View>
 

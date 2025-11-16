@@ -25,17 +25,31 @@ export const saveProgress = async (
 
     if (existing.documents.length > 0) {
       // Update existing progress
-      await databases.updateDocument(
-        config.databaseId,
-        config.userProgressId,
-        existing.documents[0].$id,
-        {
-          completed,
-          score,
-          attempts: existing.documents[0].attempts + 1,
-          completedAt: new Date().toISOString(),
-        }
-      );
+      console.log("Updating existing progress record...");
+      const updateData = {
+        completed,
+        score,
+        attempts: (existing.documents[0].attempts || 0) + 1,
+        completedAt: new Date().toISOString(),
+      };
+      console.log("Update data:", updateData);
+
+      try {
+        await databases.updateDocument(
+          config.databaseId,
+          config.userProgressId,
+          existing.documents[0].$id,
+          updateData
+        );
+        console.log("Progress record updated successfully");
+      } catch (updateError) {
+        console.error("Update error:", updateError);
+        console.error(
+          "Existing document:",
+          JSON.stringify(existing.documents[0], null, 2)
+        );
+        throw updateError;
+      }
     } else {
       // Create new progress record
       console.log("Creating new progress record...");

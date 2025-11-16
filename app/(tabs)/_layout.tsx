@@ -1,6 +1,6 @@
 import useAuthStore from "@/store/auth.store";
 import { Redirect, Tabs } from "expo-router";
-import { BookOpen, Home, User } from "lucide-react-native";
+import { Home, LibraryBig, User } from "lucide-react-native";
 
 export default function TabLayout() {
   const { isAuthenticated } = useAuthStore();
@@ -11,19 +11,30 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#3B82F6",
+        tabBarActiveTintColor: "#667eea",
         tabBarInactiveTintColor: "#9CA3AF",
         tabBarStyle: {
           backgroundColor: "white",
-          borderTopColor: "#E5E7EB",
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          borderTopWidth: 0,
+          height: 70,
+          paddingBottom: 12,
+          paddingTop: 12,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: -2,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
+          marginTop: 2,
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
         },
       }}
     >
@@ -35,11 +46,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="domain"
+        name="learn"
         options={{
-          title: "Domains",
+          title: "Learn",
           tabBarIcon: ({ color, size }) => (
-            <BookOpen color={color} size={size} />
+            <LibraryBig color={color} size={size} />
           ),
         }}
       />

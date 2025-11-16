@@ -1,5 +1,13 @@
 import { ScenarioChallengeProps, ScenarioContent } from "@/type";
 import cn from "clsx";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import {
+  ArrowLeft,
+  CheckCircle,
+  Lightbulb,
+  XCircle,
+} from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -8,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import GlassCard from "./GlassCard";
 
 const ScenarioChallenge = ({
   challenge,
@@ -20,6 +28,7 @@ const ScenarioChallenge = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const router = useRouter();
 
   // Parse content with error handling
   let content: ScenarioContent;
@@ -31,10 +40,12 @@ const ScenarioChallenge = ({
   } catch (error) {
     console.error("❌ Failed to parse challenge content:", error);
     return (
-      <View className="flex-1 bg-white items-center justify-center p-4">
-        <Text className="text-black text-center">
-          Error loading challenge content
-        </Text>
+      <View className="flex-1 items-center justify-center p-4">
+        <GlassCard>
+          <Text className="text-gray-800 text-center text-lg">
+            Error loading challenge content
+          </Text>
+        </GlassCard>
       </View>
     );
   }
@@ -43,8 +54,12 @@ const ScenarioChallenge = ({
   if (!content.options || !Array.isArray(content.options)) {
     console.error("❌ Invalid challenge content structure:", content);
     return (
-      <View className="flex-1 bg-white items-center justify-center p-4">
-        <Text className="text-black text-center">Invalid challenge format</Text>
+      <View className="flex-1 items-center justify-center p-4">
+        <GlassCard>
+          <Text className="text-gray-800 text-center text-lg">
+            Invalid challenge format
+          </Text>
+        </GlassCard>
       </View>
     );
   }
@@ -71,18 +86,18 @@ const ScenarioChallenge = ({
   const getOptionStyle = (optionId: string) => {
     if (!hasSubmitted) {
       return selectedOption === optionId
-        ? "bg-blue-600 border-blue-400"
-        : "bg-gray-800 border-gray-600";
+        ? "bg-white/95 border border-blue-400/50"
+        : "bg-white/95 border border-white/30";
     }
 
     const option = content.options.find((opt) => opt.id === optionId);
     if (option?.isCorrect) {
-      return "bg-green-600 border-green-400";
+      return "bg-green-500/20 border-green-400/50";
     }
     if (selectedOption === optionId && !option?.isCorrect) {
-      return "bg-red-600 border-red-400";
+      return "bg-red-500/20 border-red-400/50";
     }
-    return "bg-gray-800 border-gray-600";
+    return "bg-white/95 border border-white/30";
   };
 
   const getOptionIcon = (optionId: string) => {
@@ -92,169 +107,224 @@ const ScenarioChallenge = ({
 
     const option = content.options.find((opt) => opt.id === optionId);
     if (option?.isCorrect) {
-      return "✓";
+      return <CheckCircle color="#10b981" size={20} />;
     }
     if (selectedOption === optionId && !option?.isCorrect) {
-      return "✗";
+      return <XCircle color="#ef4444" size={20} />;
     }
     return "○";
   };
 
+  const getDifficultyColor = (): [string, string] => {
+    switch (challenge.difficulty) {
+      case "easy":
+        return ["#10b981", "#34d399"];
+      case "medium":
+        return ["#f59e0b", "#fbbf24"];
+      case "hard":
+        return ["#ef4444", "#f87171"];
+      default:
+        return ["#6b7280", "#9ca3af"];
+    }
+  };
+
   return (
-    <SafeAreaView className="flex flex-1 bg-white">
-      <ScrollView contentContainerClassName="p-4">
-        <View className="mb-6">
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-black text-lg font-semibold">
-              {challenge.title}
-            </Text>
-            <View
-              className={cn(
-                "px-3 py-1 rounded-full",
-                challenge.difficulty === "easy" && "bg-green-500/20",
-                challenge.difficulty === "medium" && "bg-yellow-500/20",
-                challenge.difficulty === "hard" && "bg-red-500/20"
-              )}
-            >
-              <Text
-                className={cn(
-                  "text-xs font-semibold",
-                  challenge.difficulty === "easy" && "text-green-400",
-                  challenge.difficulty === "medium" && "text-yellow-400",
-                  challenge.difficulty === "hard" && "text-red-400"
-                )}
+    <View className="flex-1">
+      <ScrollView className="flex-1 px-6 pt-4">
+        {/* Header */}
+        <View className="flex-row items-center justify-between mb-6">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-10 h-10 rounded-full bg-white/10 border border-white/20 items-center justify-center"
+          >
+            <ArrowLeft color="white" size={20} />
+          </TouchableOpacity>
+
+          <View className="flex-row items-center gap-3">
+            <View className="px-3 py-1 rounded-full overflow-hidden">
+              <LinearGradient
+                colors={getDifficultyColor()}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="px-3 py-1 rounded-full"
               >
-                {challenge.difficulty.toUpperCase()}
+                <Text className="text-white text-xs font-bold">
+                  {challenge.difficulty.toUpperCase()}
+                </Text>
+              </LinearGradient>
+            </View>
+
+            <View className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+              <Text className="text-white text-xs font-semibold">
+                {challenge.xpReward} XP
               </Text>
             </View>
           </View>
-          <Text className="text-gray-400 text-sm">{challenge.xpReward} XP</Text>
         </View>
 
-        <View className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-          <Text className="text-blue-400 text-xs font-semibold mb-2">
-            📖 SCENARIO
+        {/* Challenge Title */}
+        <GlassCard className="mb-6">
+          <Text className="text-gray-800 text-xl font-bold mb-2">
+            {challenge.title}
           </Text>
-          <Text className="text-black text-base leading-6">
+          <Text className="text-gray-600 text-sm">
+            Complete this challenge to earn {challenge.xpReward} XP
+          </Text>
+        </GlassCard>
+
+        {/* Scenario Card */}
+        <GlassCard variant="primary" className="mb-6">
+          <View className="flex-row items-center mb-3">
+            <Text className="text-2xl mr-2">📖</Text>
+            <Text className="text-blue-600 text-sm font-bold">SCENARIO</Text>
+          </View>
+          <Text className="text-gray-800 text-base leading-6">
             {content.scenario}
           </Text>
-        </View>
+        </GlassCard>
 
-        <View className="mb-4">
-          <Text className="text-black text-lg font-semibold mb-4">
+        {/* Question */}
+        <GlassCard className="mb-6">
+          <Text className="text-gray-800 text-lg font-semibold">
             {content.question}
           </Text>
-        </View>
+        </GlassCard>
+
+        {/* Options */}
         <View className="mb-6">
-          {content.options.map((option) => (
+          {content.options.map((option, index) => (
             <TouchableOpacity
               key={option.id}
               onPress={() => handleOptionSelect(option.id)}
               disabled={hasSubmitted}
               className={cn(
-                "border-2 rounded-lg p-4 mb-3 flex-row items-center",
+                "rounded-2xl p-4 mb-3 flex-row items-center border-2",
                 getOptionStyle(option.id)
               )}
             >
-              <Text className="text-black text-xl mr-3">
-                {getOptionIcon(option.id)}
+              <View className="w-6 h-6 mr-4 items-center justify-center">
+                {typeof getOptionIcon(option.id) === "string" ? (
+                  <Text className="text-gray-800 text-lg font-bold">
+                    {getOptionIcon(option.id)}
+                  </Text>
+                ) : (
+                  getOptionIcon(option.id)
+                )}
+              </View>
+              <Text className="text-gray-800 text-base flex-1 font-medium">
+                {option.text}
               </Text>
-              <Text className="text-black text-base flex-1">{option.text}</Text>
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Explanation */}
         {showExplanation && selectedOption && (
-          <View
-            className={cn(
-              "border-2 rounded-lg p-4 mb-6",
+          <GlassCard
+            variant={
               content.options.find((opt) => opt.id === selectedOption)
                 ?.isCorrect
-                ? "bg-green-500/10 border-green-500/30"
-                : "bg-red-500/10 border-red-500/30"
-            )}
+                ? "success"
+                : "dark"
+            }
+            className="mb-6"
           >
-            <Text
-              className={cn(
-                "text-sm font-semibold mb-2",
-                content.options.find((opt) => opt.id === selectedOption)
-                  ?.isCorrect
-                  ? "text-green-400"
-                  : "text-red-400"
-              )}
-            >
+            <View className="flex-row items-center mb-3">
               {content.options.find((opt) => opt.id === selectedOption)
-                ?.isCorrect
-                ? "✓ Correct!"
-                : "✗ Not quite right"}
-            </Text>
-            <Text className="text-gray-300 text-sm">
+                ?.isCorrect ? (
+                <CheckCircle color="#10b981" size={24} />
+              ) : (
+                <XCircle color="#ef4444" size={24} />
+              )}
+              <Text
+                className={cn(
+                  "text-lg font-bold ml-2",
+                  content.options.find((opt) => opt.id === selectedOption)
+                    ?.isCorrect
+                    ? "text-green-600"
+                    : "text-red-600"
+                )}
+              >
+                {content.options.find((opt) => opt.id === selectedOption)
+                  ?.isCorrect
+                  ? "Correct!"
+                  : "Not quite right"}
+              </Text>
+            </View>
+            <Text className="text-gray-700 text-base leading-6">
               {
                 content.options.find((opt) => opt.id === selectedOption)
                   ?.explanation
               }
             </Text>
-          </View>
+          </GlassCard>
         )}
 
+        {/* Hints */}
         {hints.length > 0 && (
           <View className="mb-6">
-            <Text className="text-yellow-400 text-sm font-semibold mb-2">
-              💡 HINTS
-            </Text>
+            <View className="flex-row items-center mb-3">
+              <Lightbulb color="#f59e0b" size={20} />
+              <Text className="text-white font-bold ml-2">HINTS</Text>
+            </View>
             {hints.map((hint, index) => (
-              <View
+              <GlassCard
                 key={index}
-                className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-2"
+                className="mb-3 bg-yellow-500/10 border-yellow-400/30"
               >
-                <Text className="text-gray-300 text-sm">{hint}</Text>
-              </View>
+                <Text className="text-gray-800 text-base">{hint}</Text>
+              </GlassCard>
             ))}
           </View>
         )}
 
-        <View className="flex-row gap-3 mb-8">
-          {!hasSubmitted && (
-            <>
-              <TouchableOpacity
-                onPress={onRequestHint}
-                disabled={isLoading}
-                className="flex-1 bg-yellow-500/20 border border-yellow-500 rounded-lg py-3 items-center"
+        {/* Action Buttons */}
+        {!hasSubmitted && (
+          <View className="flex-row gap-4 mb-8">
+            <TouchableOpacity
+              onPress={onRequestHint}
+              disabled={isLoading}
+              className="flex-1 overflow-hidden rounded-2xl"
+            >
+              <LinearGradient
+                colors={["#f59e0b", "#fbbf24"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="p-4 flex-row items-center justify-center"
               >
                 {isLoading ? (
-                  <ActivityIndicator color="#FCD34D" />
+                  <ActivityIndicator color="white" />
                 ) : (
-                  <Text className="text-yellow-400 font-semibold">
-                    💡 Get Hint
-                  </Text>
+                  <>
+                    <Lightbulb color="white" size={20} />
+                    <Text className="text-white font-bold ml-2">Get Hint</Text>
+                  </>
                 )}
-              </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={!selectedOption || isLoading}
-                className={cn(
-                  "flex-1 rounded-lg py-3 items-center",
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={!selectedOption || isLoading}
+              className="flex-1 overflow-hidden rounded-2xl"
+            >
+              <LinearGradient
+                colors={
                   selectedOption && !isLoading
-                    ? "bg-blue-500 border border-blue-400"
-                    : "bg-gray-700 border border-gray-600"
-                )}
+                    ? ["#667eea", "#764ba2"]
+                    : ["#6b7280", "#9ca3af"]
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="p-4 items-center justify-center"
               >
-                <Text
-                  className={cn(
-                    "font-semibold",
-                    selectedOption && !isLoading
-                      ? "text-black"
-                      : "text-gray-400"
-                  )}
-                >
-                  Submit Answer
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+                <Text className="text-white font-bold">Submit Answer</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 export default ScenarioChallenge;

@@ -34,9 +34,7 @@ const QuestCard = ({ quest, isLocked = false, progress }: Props) => {
         disabled={isLocked}
         className={cn(
           "rounded-xl p-4 mb-4 border-2",
-          isLocked
-            ? "bg-gray-800/50 border-gray-700"
-            : "bg-gray-800 border-blue-500/30"
+          isLocked ? "bg-white border-gray-700" : "bg-white border-blue-500/30"
         )}
       >
         <View className="flex-row justify-between items-center mb-2">

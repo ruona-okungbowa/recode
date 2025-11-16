@@ -24,7 +24,7 @@ const TheoryDetail = () => {
 
   if (isLoading || !currentQuest) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-900 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#3B82F6" />
         <Text className="text-white mt-4">Loading theory...</Text>
       </SafeAreaView>
@@ -48,16 +48,16 @@ const TheoryDetail = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-900">
-      <View className="flex-1">
-        <View className="px-4 py-3 border-b border-gray-800">
-          <TouchableOpacity onPress={() => router.back()} className="mb-2">
-            <Text className="text-blue-400 text-sm">← Back to Quest</Text>
-          </TouchableOpacity>
-          <Text className="text-white text-xl font-bold">Theory</Text>
-        </View>
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="flex-1 px-4 py-4">
+        <View className="flex-1">
+          <View className="px-4 py-3 border-b border-gray-800">
+            <TouchableOpacity onPress={() => router.back()} className="mb-2">
+              <Text className="text-blue-400 text-sm">← Back to Quest</Text>
+            </TouchableOpacity>
+            <Text className="text-white text-xl font-bold">Theory</Text>
+          </View>
 
-        <ScrollView className="flex-1 px-4 py-4">
           <TheorySection
             title={theoryData.title || currentQuest.title}
             content={theoryData.content || currentQuest.theoryContent}
@@ -65,8 +65,8 @@ const TheoryDetail = () => {
             diagrams={theoryData.diagrams}
             analogies={theoryData.analogies}
           />
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

@@ -1,5 +1,3 @@
-import QuestCompletionOverlay from "@/componets/QuestCompletionOverlay";
-
 import useAuthStore from "@/store/auth.store";
 import useQuestStore from "@/store/quest.store";
 import cn from "clsx";
@@ -31,13 +29,16 @@ const QuestDetail = () => {
   useEffect(() => {
     if (id && user) {
       loadQuest(id);
-      checkAndCompleteQuest(user.userId, id);
+      // Delay quest completion check to prevent interference with challenge completion modal
+      setTimeout(() => {
+        checkAndCompleteQuest(user.userId, id);
+      }, 100000);
     }
   }, [checkAndCompleteQuest, id, loadQuest, user]);
 
   if (isLoading || !currentQuest) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-900 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#3B82F6" />
         <Text className="text-black mt-4">Loading quest...</Text>
       </SafeAreaView>
@@ -74,7 +75,7 @@ const QuestDetail = () => {
               {completedCount}/{questChallenges.length} challenges
             </Text>
           </View>
-          <View className="w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+          <View className="w-full h-3 bg-gray-500 rounded-full overflow-hidden border border-gray-700">
             <View
               className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
               style={{ width: `${progressPercentage}%` }}
@@ -106,19 +107,28 @@ const QuestDetail = () => {
         )}
         {currentQuest.theoryContent && (
           <TouchableOpacity
-            onPress={() =>
-              router.push(`/quest/theory/${currentQuest.$id}` as any)
-            }
-            className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6"
+            onPress={() => router.push(`/theory/${currentQuest.$id}` as any)}
+            className="bg-gray-400 border border-gray-700 rounded-lg p-4 mb-6"
           >
             <Text className="text-yellow-400 text-xs font-semibold mb-2">
               💡 THEORY
             </Text>
             <Text className="text-gray-600 text-sm leading-5" numberOfLines={3}>
-              {typeof currentQuest.theoryContent === "string"
-                ? currentQuest.theoryContent
-                : currentQuest.theoryContent.content ||
-                  "Learn the theory behind this quest"}
+              {(() => {
+                try {
+                  const content =
+                    typeof currentQuest.theoryContent === "string"
+                      ? JSON.parse(currentQuest.theoryContent)
+                      : currentQuest.theoryContent;
+                  return (
+                    content.content || "Learn the theory behind this quest"
+                  );
+                } catch {
+                  return typeof currentQuest.theoryContent === "string"
+                    ? currentQuest.theoryContent
+                    : "Learn the theory behind this quest";
+                }
+              })()}
             </Text>
             <View className="flex-row items-center mt-2">
               <Text className="text-blue-400 text-sm">Read full theory</Text>
@@ -148,8 +158,8 @@ const QuestDetail = () => {
                 className={cn(
                   "flex-row items-center justify-between p-4 mb-3 rounded-lg border-2",
                   isCompleted && "bg-green-500/10 border-green-500/30",
-                  !isCompleted && !isLocked && "bg-gray-800 border-gray-700",
-                  isLocked && "bg-gray-800/50 border-gray-700/50"
+                  !isCompleted && !isLocked && "bg-gray-400 border-gray-400",
+                  isLocked && "bg-gray-700/50 border-gray-700/50"
                 )}
               >
                 <View className="flex-row items-center flex-1">
@@ -189,20 +199,6 @@ const QuestDetail = () => {
           })}
         </View>
       </ScrollView>
-
-      {/* Quest Completion Overlay */}
-      {showCompletionOverlay && completionData && (
-        <QuestCompletionOverlay
-          visible={showCompletionOverlay}
-          questTitle={completionData.questTitle}
-          totalXP={completionData.totalXP}
-          bonusXP={completionData.bonusXP}
-          unlockedContent={completionData.unlockedContent}
-          relatedTopics={completionData.relatedTopics}
-          leetcodeProblems={completionData.leetcodeProblems}
-          onClose={hideCompletionOverlay}
-        />
-      )}
     </SafeAreaView>
   );
 };

@@ -46,6 +46,7 @@ export interface Topic extends Models.Document {
 export interface Challenge extends Models.Document {
   $id: string;
   topicId: string;
+  questId?: string;
   title: string;
   description: string;
   type: "multiple-choice" | "drag-drop" | "code";
@@ -76,7 +77,7 @@ export interface Quest extends Models.Document {
   narrative: string;
   objectives: string[];
   totalXP: number;
-  theoryContent: string;
+  theoryContent: string | TheorySection;
   challengeIds: string[];
   unlockRequirements: string[];
   order: number;
@@ -140,6 +141,34 @@ interface PatternContent {
 interface PatternChallenge extends Challenge {
   type: "pattern-recognition";
   content: PatternContent;
+}
+
+interface VisualChallenge extends Challenge {
+  type: "visual-builder";
+  content: VisualContent;
+}
+
+interface VisualChallengeProps {
+  challenge: VisualChallenge;
+  onSubmit: (isCorrect: boolean, constructedSolution: any) => void;
+  onRequestHint: () => void;
+  hints: string[];
+  isLoading?: boolean;
+}
+
+interface VisualContent {
+  dataStructure: "stack" | "queue" | "tree" | "graph" | "hash-table";
+  problemStatement: string;
+  initialState: any[];
+  targetState: any[];
+  allowedOperations: string[];
+  operationDescriptions: Record<string, string>;
+  maxOperations?: number;
+  visualizationConfig?: {
+    orientation: "vertical" | "horizontal";
+    showIndices: boolean;
+    animationSpeed: number;
+  };
 }
 
 interface CreateUserParams {
