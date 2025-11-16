@@ -11,6 +11,7 @@ import {
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -262,7 +263,7 @@ const ScenarioChallenge = ({
 
         {/* Hints */}
         {hints.length > 0 && (
-          <View className="mb-6">
+          <View className="mb-6 ">
             <View className="flex-row items-center mb-3">
               <Lightbulb color="#f59e0b" size={20} />
               <Text className="text-white font-bold ml-2">HINTS</Text>
@@ -280,47 +281,38 @@ const ScenarioChallenge = ({
 
         {/* Action Buttons */}
         {!hasSubmitted && (
-          <View className="flex-row gap-4 mb-8">
-            <TouchableOpacity
+          <View className="flex-row gap-4 mb-8 p-4 m-4 items-center justify-center">
+            <Pressable
               onPress={onRequestHint}
               disabled={isLoading}
-              className="flex-1 overflow-hidden rounded-2xl"
+              className="flex-1 bg-yellow-500 rounded-xl px-4 py-3 flex-row items-center justify-center"
+              style={({ pressed }: { pressed: boolean }) => [
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
             >
-              <LinearGradient
-                colors={["#f59e0b", "#fbbf24"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="p-4 flex-row items-center justify-center"
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <>
-                    <Lightbulb color="white" size={20} />
-                    <Text className="text-white font-bold ml-2">Get Hint</Text>
-                  </>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <>
+                  <Lightbulb color="white" size={20} />
+                  <Text className="text-white font-bold ml-2">Get Hint</Text>
+                </>
+              )}
+            </Pressable>
 
-            <TouchableOpacity
+            <Pressable
               onPress={handleSubmit}
               disabled={!selectedOption || isLoading}
-              className="flex-1 overflow-hidden rounded-2xl"
+              className={cn(
+                "flex-1 rounded-xl px-4 py-3 items-center justify-center",
+                selectedOption && !isLoading ? "bg-blue-600" : "bg-gray-500"
+              )}
+              style={({ pressed }: { pressed: boolean }) => [
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
             >
-              <LinearGradient
-                colors={
-                  selectedOption && !isLoading
-                    ? ["#667eea", "#764ba2"]
-                    : ["#6b7280", "#9ca3af"]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="p-4 items-center justify-center"
-              >
-                <Text className="text-white font-bold">Submit Answer</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              <Text className="text-white font-bold">Submit Answer</Text>
+            </Pressable>
           </View>
         )}
       </ScrollView>

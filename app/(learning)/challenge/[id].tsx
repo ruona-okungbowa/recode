@@ -1,12 +1,13 @@
+import PatternChallenge from "@/componets/PatternChallenge";
 import ScenarioChallenge from "@/componets/ScenarioChallenge";
-import { awardXP } from "@/lib/appwrite";
+import VisualChallenge from "@/componets/VisualChallenge";
+import { awardXP, updateStreak } from "@/lib/appwrite";
 import useAuthStore from "@/store/auth.store";
 import useChallengeStore from "@/store/challenge.store";
 import useProgressStore from "@/store/progress.store";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ChallengeScreen = () => {
@@ -37,7 +38,7 @@ const ChallengeScreen = () => {
     };
   }, [id, loadChallenge, resetChallenge]);
 
-  const handleSubmit = async (isCorrect: boolean, selectedAnswer: string) => {
+  const handleSubmit = async (isCorrect: boolean, selectedAnswer: any) => {
     if (!currentChallenge || !user) return;
 
     // Track the attempt
@@ -55,16 +56,46 @@ const ChallengeScreen = () => {
     );
 
     if (isCorrect) {
-      // Award XP
-      await awardXP(user.userId, currentChallenge.xpReward);
+      try {
+        // Award XP
+        await awardXP(user.userId, currentChallenge.xpReward);
 
-      // Refresh user data to update completedChallenges
-      await useAuthStore.getState().fetchAuthenticatedUser();
+        // Update streak for completing a challenge
+        const streakResult = await updateStreak(user.userId);
 
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.push(`/quest/${currentChallenge.questId}`);
+        // Show streak feedback
+        if (streakResult.streakIncremented) {
+          if (streakResult.isNewStreak) {
+            Alert.alert(
+              "🔥 Streak Started!",
+              "You've started a new learning streak! Complete challenges daily to keep it going.",
+              [{ text: "Great!", style: "default" }]
+            );
+          } else {
+            Alert.alert(
+              "🔥 Streak Continued!",
+              `Amazing! You're on a ${streakResult.streak}-day streak. Keep it up!`,
+              [{ text: "Awesome!", style: "default" }]
+            );
+          }
+        }
+
+        // Refresh user data to update completedChallenges and streak
+        await useAuthStore.getState().fetchAuthenticatedUser();
+
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.push(`/quest/${currentChallenge.questId}`);
+        }
+      } catch (error) {
+        console.error("Error updating progress:", error);
+        // Still navigate back even if streak update fails
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.push(`/quest/${currentChallenge.questId}`);
+        }
       }
     }
   };
@@ -75,12 +106,7 @@ const ChallengeScreen = () => {
 
   if (challengeLoading || !currentChallenge) {
     return (
-      <LinearGradient
-        colors={["#a8edea", "#fed6e3"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1"
-      >
+      <View className="flex-1 bg-blue-400">
         <SafeAreaView className="flex-1 items-center justify-center">
           <View className="bg-white/95 border border-white/30 shadow-lg rounded-2xl p-8 items-center">
             <ActivityIndicator size="large" color="#667eea" />
@@ -89,47 +115,64 @@ const ChallengeScreen = () => {
             </Text>
           </View>
         </SafeAreaView>
-      </LinearGradient>
+      </View>
     );
   }
 
-  // Only render ScenarioChallenge for multiple-choice type
-  if (currentChallenge.type !== "multiple-choice") {
-    return (
-      <LinearGradient
-        colors={["#a8edea", "#fed6e3"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1"
-      >
-        <SafeAreaView className="flex-1 items-center justify-center p-4">
-          <View className="bg-white/95 border border-white/30 shadow-lg rounded-2xl p-8">
-            <Text className="text-gray-800 text-center text-lg">
-              Challenge type {currentChallenge.type} not yet implemented
-            </Text>
+  // Render appropriate challenge component based on type
+  const renderChallenge = () => {
+    switch (currentChallenge.type) {
+      case "multiple-choice":
+        return (
+          <ScenarioChallenge
+            challenge={currentChallenge}
+            onSubmit={handleSubmit}
+            onRequestHint={handleRequestHint}
+            hints={hints}
+            isLoading={challengeLoading}
+          />
+        );
+
+      case "pattern-recognition":
+        return (
+          <PatternChallenge
+            challenge={currentChallenge as any}
+            onSubmit={handleSubmit}
+            onRequestHint={handleRequestHint}
+            hints={hints}
+            isLoading={challengeLoading}
+          />
+        );
+
+      case "visual-builder":
+        return (
+          <VisualChallenge
+            challenge={currentChallenge as any}
+            onSubmit={handleSubmit}
+            onRequestHint={handleRequestHint}
+            hints={hints}
+            isLoading={challengeLoading}
+          />
+        );
+
+      default:
+        return (
+          <View className="flex-1 items-center justify-center p-4">
+            <View className="bg-white/95 border border-white/30 shadow-lg rounded-2xl p-8">
+              <Text className="text-gray-800 text-center text-lg">
+                Challenge type &quot;{currentChallenge.type}&quot; not yet
+                implemented
+              </Text>
+            </View>
           </View>
-        </SafeAreaView>
-      </LinearGradient>
-    );
-  }
+        );
+    }
+  };
 
   return (
-    <LinearGradient
-      colors={["#a8edea", "#fed6e3"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      className="flex-1"
-    >
-      <SafeAreaView className="flex-1">
-        <ScenarioChallenge
-          challenge={currentChallenge}
-          onSubmit={handleSubmit}
-          onRequestHint={handleRequestHint}
-          hints={hints}
-          isLoading={challengeLoading}
-        />
-      </SafeAreaView>
-    </LinearGradient>
+    <View className="flex-1 bg-blue-400">
+      <SafeAreaView className="flex-1">{renderChallenge()}</SafeAreaView>
+    </View>
   );
 };
 export default ChallengeScreen;

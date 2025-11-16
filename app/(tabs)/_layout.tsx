@@ -12,43 +12,42 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#667eea",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarInactiveTintColor: "rgba(255, 255, 255, 0.6)",
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "white",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
           borderTopWidth: 0,
-          height: 70,
-          paddingBottom: 12,
-          paddingTop: 12,
+          height: 50,
+          paddingBottom: 6,
+          paddingTop: 6,
+          marginBottom: 20,
+          marginHorizontal: 30,
+          borderRadius: 16,
+          position: "absolute",
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
             height: -2,
           },
-          shadowOpacity: 0.1,
+          shadowOpacity: 0.2,
           shadowRadius: 8,
           elevation: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-          marginTop: 2,
+          backdropFilter: "blur(10px)",
         },
         tabBarIconStyle: {
-          marginBottom: 2,
+          marginBottom: 0,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
-          title: "Learn",
           tabBarIcon: ({ color, size }) => (
             <LibraryBig color={color} size={size} />
           ),
@@ -57,7 +56,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

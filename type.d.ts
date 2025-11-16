@@ -49,7 +49,12 @@ export interface Challenge extends Models.Document {
   questId?: string;
   title: string;
   description: string;
-  type: "multiple-choice" | "drag-drop" | "code";
+  type:
+    | "multiple-choice"
+    | "drag-drop"
+    | "code"
+    | "pattern-recognition"
+    | "visual-builder";
   difficulty: "easy" | "medium" | "hard";
   content: any;
   correctAnswer: any;

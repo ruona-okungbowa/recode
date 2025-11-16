@@ -1,7 +1,6 @@
 import cn from "clsx";
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
 interface Props {
   onPress: () => void;
@@ -24,66 +23,45 @@ const CustomButton = ({
   variant = "primary",
   disabled = false,
 }: Props) => {
-  const getGradientColors = (): [string, string] => {
-    if (disabled || isLoading) return ["#6b7280", "#9ca3af"];
+  const getButtonStyles = () => {
+    if (disabled || isLoading) return "bg-gray-500";
 
     switch (variant) {
       case "primary":
-        return ["#667eea", "#764ba2"];
+        return "bg-blue-600";
       case "secondary":
-        return ["#f093fb", "#f5576c"];
+        return "bg-pink-500";
       case "success":
-        return ["#4facfe", "#00f2fe"];
+        return "bg-cyan-500";
       case "glass":
-        return ["rgba(255,255,255,0.2)", "rgba(255,255,255,0.1)"];
+        return "bg-white/10 border border-white/20";
       default:
-        return ["#667eea", "#764ba2"];
+        return "bg-blue-600";
     }
   };
 
-  if (variant === "glass") {
-    return (
-      <TouchableOpacity
-        onPress={onPress}
-        disabled={disabled || isLoading}
-        className={cn("rounded-2xl overflow-hidden", style)}
-      >
-        <View className="bg-white/10 border border-white/20 rounded-2xl p-4 flex-row items-center justify-center">
-          {leftIcon && <View className="mr-2">{leftIcon}</View>}
-          {isLoading ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text className={cn("text-white font-bold text-base", textStyle)}>
-              {title}
-            </Text>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       disabled={disabled || isLoading}
-      className={cn("rounded-2xl overflow-hidden", style)}
+      className={cn(
+        "rounded-xl px-6 py-4 flex-row items-center justify-center min-h-[56px]",
+        getButtonStyles(),
+        style
+      )}
+      style={({ pressed }: { pressed: boolean }) => [
+        { opacity: pressed ? 0.7 : 1 },
+      ]}
     >
-      <LinearGradient
-        colors={getGradientColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="p-4 flex-row items-center justify-center"
-      >
-        {leftIcon && <View className="mr-2">{leftIcon}</View>}
-        {isLoading ? (
-          <ActivityIndicator size="small" color="white" />
-        ) : (
-          <Text className={cn("text-white font-bold text-base", textStyle)}>
-            {title}
-          </Text>
-        )}
-      </LinearGradient>
-    </TouchableOpacity>
+      {leftIcon && <View className="mr-2">{leftIcon}</View>}
+      {isLoading ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text className={cn("text-white font-bold text-base", textStyle)}>
+          {title}
+        </Text>
+      )}
+    </Pressable>
   );
 };
 export default CustomButton;

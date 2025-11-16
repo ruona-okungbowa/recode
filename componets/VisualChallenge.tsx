@@ -3,6 +3,8 @@ import cn from "clsx";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -13,7 +15,6 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const StackVisualization = ({ state }: { state: any[] }) => {
@@ -45,7 +46,7 @@ const StackItem = ({ value }: { value: any }) => {
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 10 });
-  }, []);
+  }, [scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -341,27 +342,31 @@ const VisualChallenge = ({
         <View className="flex-row gap-3 mb-8">
           {!hasSubmitted && (
             <>
-              <TouchableOpacity
+              <Pressable
                 onPress={onRequestHint}
                 disabled={isLoading}
-                className="flex-1 bg-yellow-500/20 border border-yellow-500 rounded-lg py-3 items-center"
+                className="flex-1 bg-yellow-500 rounded-xl py-3 items-center"
+                style={({ pressed }: { pressed: boolean }) => [
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
               >
                 {isLoading ? (
-                  <ActivityIndicator color="#FCD34D" />
+                  <ActivityIndicator color="white" />
                 ) : (
-                  <Text className="text-yellow-400 font-semibold">
-                    💡 Get Hint
-                  </Text>
+                  <Text className="text-white font-semibold">💡 Get Hint</Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
 
-              <TouchableOpacity
+              <Pressable
                 onPress={checkSolution}
                 disabled={isLoading}
-                className="flex-1 bg-blue-500 border border-blue-400 rounded-lg py-3 items-center"
+                className="flex-1 bg-blue-600 rounded-xl py-3 items-center"
+                style={({ pressed }: { pressed: boolean }) => [
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
               >
                 <Text className="text-white font-semibold">Check Solution</Text>
-              </TouchableOpacity>
+              </Pressable>
             </>
           )}
 

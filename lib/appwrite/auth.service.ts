@@ -1,6 +1,6 @@
 import { CreateUserParams, SignInParams } from "@/type";
 import { ID } from "react-native-appwrite";
-import { account, avatar, config, databases } from "./config";
+import { account, config, databases } from "./config";
 
 export const createUser = async ({
   email,
@@ -16,7 +16,10 @@ export const createUser = async ({
     // fetch acccount info
     const currentAccount = await account.get();
 
-    const avatarUrl = avatar.getInitials(name);
+    // Assign a random avatar from available avatars (1-10)
+    const randomAvatarNumber = Math.floor(Math.random() * 10) + 1;
+    const avatarUrl = `avatar${randomAvatarNumber}.png`;
+
     await databases.createDocument(
       config.databaseId,
       config.userTableId,

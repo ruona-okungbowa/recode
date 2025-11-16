@@ -4,6 +4,7 @@ import { Check, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -238,41 +239,34 @@ const PatternChallenge = ({
         <View className="flex-row gap-3 mb-8">
           {!hasSubmitted && (
             <>
-              <TouchableOpacity
+              <Pressable
                 onPress={onRequestHint}
                 disabled={isLoading}
-                className="flex-1 bg-yellow-500/20 border border-yellow-500 rounded-lg py-3 items-center"
+                className="flex-1 bg-yellow-500 rounded-xl py-3 items-center"
+                style={({ pressed }: { pressed: boolean }) => [
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
               >
                 {isLoading ? (
-                  <ActivityIndicator color="#FCD34D" />
+                  <ActivityIndicator color="white" />
                 ) : (
-                  <Text className="text-yellow-400 font-semibold">
-                    💡 Get Hint
-                  </Text>
+                  <Text className="text-white font-semibold">💡 Get Hint</Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
 
-              <TouchableOpacity
+              <Pressable
                 onPress={handleSubmit}
                 disabled={!selectedPattern || isLoading}
                 className={cn(
-                  "flex-1 rounded-lg py-3 items-center",
-                  selectedPattern && !isLoading
-                    ? "bg-blue-500 border border-blue-400"
-                    : "bg-gray-700 border border-gray-600"
+                  "flex-1 rounded-xl py-3 items-center",
+                  selectedPattern && !isLoading ? "bg-blue-600" : "bg-gray-500"
                 )}
+                style={({ pressed }: { pressed: boolean }) => [
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
               >
-                <Text
-                  className={cn(
-                    "font-semibold",
-                    selectedPattern && !isLoading
-                      ? "text-black"
-                      : "text-gray-400"
-                  )}
-                >
-                  Submit Answer
-                </Text>
-              </TouchableOpacity>
+                <Text className="text-white font-semibold">Submit Answer</Text>
+              </Pressable>
             </>
           )}
         </View>
