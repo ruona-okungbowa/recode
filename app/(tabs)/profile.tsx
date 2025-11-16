@@ -14,8 +14,34 @@ import {
   Zap,
 } from "lucide-react-native";
 import React from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+// Avatar mapping function
+const getAvatarSource = (avatarName: string) => {
+  const avatarMap: { [key: string]: any } = {
+    "avatar1.png": require("../../assets/images/avatar1.png"),
+    "avatar2.png": require("../../assets/images/avatar2.png"),
+    "avatar3.png": require("../../assets/images/avatar3.png"),
+    "avatar4.png": require("../../assets/images/avatar4.png"),
+    "avatar5.png": require("../../assets/images/avatar5.png"),
+    "avatar6.png": require("../../assets/images/avatar6.png"),
+    "avatar7.png": require("../../assets/images/avatar7.png"),
+    "avatar8.png": require("../../assets/images/avatar8.png"),
+    "avatar9.png": require("../../assets/images/avatar9.png"),
+    "avatar10.png": require("../../assets/images/avatar10.png"),
+  };
+
+  return avatarMap[avatarName] || avatarMap["avatar6.png"];
+};
 
 const Profile = () => {
   const { user, signOutUser } = useAuthStore();
@@ -90,7 +116,7 @@ const Profile = () => {
           contentContainerStyle={{
             paddingHorizontal: 20,
             paddingTop: 16,
-            paddingBottom: 100,
+            paddingBottom: 120,
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -104,17 +130,12 @@ const Profile = () => {
 
           {/* Profile Card */}
           <GlassCard className="items-center mb-6 p-6">
-            <View className="w-24 h-24 rounded-full mb-4 overflow-hidden">
-              <LinearGradient
-                colors={["#667eea", "#764ba2"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="w-full h-full items-center justify-center"
-              >
-                <Text className="text-white text-3xl font-bold">
-                  {user.name?.charAt(0).toUpperCase()}
-                </Text>
-              </LinearGradient>
+            <View className="w-24 h-24 rounded-full mb-4 overflow-hidden border-4 border-white/30 shadow-lg relative z-10">
+              <Image
+                source={getAvatarSource(user.avatar)}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
             </View>
 
             <Text className="text-gray-800 text-2xl font-bold mb-2">
@@ -261,23 +282,18 @@ const Profile = () => {
           </GlassCard>
 
           {/* Sign Out Button */}
-          <TouchableOpacity
+          <Pressable
+            className="bg-red-500 rounded-xl p-4 flex-row items-center justify-center"
             onPress={handleSignOut}
-            className="overflow-hidden rounded-2xl w-full justify-center items-center"
-            activeOpacity={0.8}
+            style={({ pressed }: { pressed: boolean }) => [
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
           >
-            <LinearGradient
-              colors={["#ef4444", "#dc2626"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="px-6 py-4 flex-row items-center justify-center w-full"
-            >
-              <LogOut color="white" size={20} />
-              <Text className="text-white font-bold text-base ml-2">
-                Sign Out
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+            <LogOut size={20} color="white" />
+            <Text className="text-white font-bold text-base ml-2">
+              Sign Out
+            </Text>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </View>
