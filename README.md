@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# Recode
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+Recode is a mobile app that enhances coding skills and interview readiness through structured practice and real-time AI feedback for developers.
 
-1. Install dependencies
 
+![CSS](https://img.shields.io/badge/CSS-blue?style=for-the-badge) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
+
+## Overview
+
+
+Recode is designed for developers looking to improve their coding abilities and prepare for technical interviews. The app provides practice challenges and instant feedback through AI integration, making it a valuable tool for skill enhancement.
+
+
+## Features
+
+
+- Practice coding challenges with real-time feedback from AI
+- User authentication for personalized experiences
+- Navigate through various coding topics and challenges
+- Track progress over time
+- Haptic feedback for enhanced user interaction
+
+
+## Tech Stack
+
+
+- **Framework:** React Native (Expo)
+- **Language:** JavaScript, TypeScript
+- **AI:** @google/genai for AI-powered feedback
+- **Navigation:** @react-navigation for seamless navigation
+- **Icons:** @expo/vector-icons for UI elements
+- **Styling:** Expo styling libraries
+
+
+## Getting Started
+
+
+### Prerequisites
+
+- Node.js 14+ and npm
+- Expo Go app for mobile testing
+- Android Studio or Xcode for emulators
+
+
+### Installation
+
+1. Clone the repository:
+   
+   ```bash
+   git clone https://github.com/ruona-okungbowa/recode
+   cd recode
+   ```
+
+2. Install dependencies:
+   
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Run the app:
+   
    ```bash
-   npx expo start
+   npm start
    ```
+   Scan the QR code with the Expo Go app or press 'i' for iOS simulator, 'a' for Android emulator.
 
-In the output, you'll find options to open the app in a
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## License
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is licensed under the MIT License.
